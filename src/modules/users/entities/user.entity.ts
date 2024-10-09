@@ -1,13 +1,12 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { IsEmail, IsUrl, Length } from "class-validator";
 import { Wish } from "src/modules/wishes/entities/wish.entity";
 import { Offer } from "src/modules/offers/entities/offer.entity";
+import { Wishlist } from "src/modules/wishlists/entities/wishlist.entity";
+import { BaseEntity } from "src/core/entities/base.entity";
 
 @Entity()
-export class User {
-	@PrimaryGeneratedColumn()
-	id: number;
-
+export class User extends BaseEntity {
 	@Column({
 		length: 30,
 		unique: true,
@@ -45,9 +44,6 @@ export class User {
 	@OneToMany(() => Offer, offer => offer.user)
 	offers: Offer[];
 
-	@CreateDateColumn()
-	createdAt: Date;
-
-	@UpdateDateColumn()
-	updatedAt: Date;
+	@OneToMany(() => Wishlist, wishlist => wishlist.user)
+	wishlists: Wishlist[];
 }

@@ -1,21 +1,12 @@
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	ManyToOne,
-	OneToMany,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn,
-} from "typeorm";
+import { Column, ColumnType, Entity, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 import { IsUrl, Length } from "class-validator";
 import { User } from "src/modules/users/entities/user.entity";
 import { Offer } from "src/modules/offers/entities/offer.entity";
+import { Wishlist } from "src/modules/wishlists/entities/wishlist.entity";
+import { BaseEntity } from "src/core/entities/base.entity";
 
 @Entity()
-export class Wish {
-	@PrimaryGeneratedColumn()
-	id: number;
-
+export class Wish extends BaseEntity {
 	@Column({
 		length: 250,
 		nullable: false,
@@ -32,12 +23,12 @@ export class Wish {
 	image: string;
 
 	@Column({
-		type: "double precision",
+		type: <ColumnType>"double precision",
 	})
 	price: number;
 
 	@Column({
-		type: "double precision",
+		type: <ColumnType>"double precision",
 	})
 	raised: number;
 
@@ -50,17 +41,14 @@ export class Wish {
 	@Length(1, 1024)
 	description: string;
 
-	@OneToMany(() => Offer, offer => offer.wish)
+	@OneToMany(() => Offer, offer => offer.item)
 	offers: Offer[];
 
 	@Column({
-		type: "decimal",
+		type: <ColumnType>"decimal",
 	})
 	copied: number;
 
-	@CreateDateColumn()
-	createdAt: Date;
-
-	@UpdateDateColumn()
-	updatedAt: Date;
+	@ManyToMany(() => Wishlist, wishlist => wishlist.items)
+	wishlists: Wishlist[];
 }
