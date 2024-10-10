@@ -13,8 +13,11 @@ export class WishesService {
 		private repository: Repository<Wish>,
 	) {}
 
-	create(dto: CreateWishDto) {
-		return crudCreate(this.repository, dto);
+	create(request, dto: CreateWishDto) {
+		return crudCreate(this.repository, {
+			...dto,
+			ownerId: request.user.id,
+		});
 	}
 
 	findAll() {

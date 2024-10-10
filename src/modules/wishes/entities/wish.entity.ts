@@ -24,11 +24,13 @@ export class Wish extends BaseEntity {
 
 	@Column({
 		type: <ColumnType>"double precision",
+		nullable: false,
 	})
 	price: number;
 
 	@Column({
 		type: <ColumnType>"double precision",
+		default: 0,
 	})
 	raised: number;
 
@@ -37,6 +39,7 @@ export class Wish extends BaseEntity {
 
 	@Column({
 		length: 1024,
+		nullable: false,
 	})
 	@Length(1, 1024)
 	description: string;
@@ -45,7 +48,8 @@ export class Wish extends BaseEntity {
 	offers: Offer[];
 
 	@Column({
-		type: <ColumnType>"decimal",
+		type: <ColumnType>"int",
+		default: 0,
 	})
 	copied: number;
 
