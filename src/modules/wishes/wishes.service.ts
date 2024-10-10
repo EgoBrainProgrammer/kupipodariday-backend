@@ -1,26 +1,35 @@
 import { Injectable } from "@nestjs/common";
 import { CreateWishDto } from "./dto/create-wish.dto";
 import { UpdateWishDto } from "./dto/update-wish.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOneOptions, Repository } from "typeorm";
+import { Wish } from "./entities/wish.entity";
+import { crudCreate, crudFindOne, crudUpdate, crudDelete } from "src/core/utils/crud";
 
 @Injectable()
 export class WishesService {
-	create(createWishDto: CreateWishDto) {
-		return "This action adds a new wish";
+	constructor(
+		@InjectRepository(Wish)
+		private repository: Repository<Wish>,
+	) {}
+
+	create(dto: CreateWishDto) {
+		return crudCreate(this.repository, dto);
 	}
 
 	findAll() {
-		return `This action returns all wishes`;
+		return this.repository.find();
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} wish`;
+	async findOne(query: FindOneOptions<Wish>) {
+		return crudFindOne(this.repository, query);
 	}
 
-	update(id: number, updateWishDto: UpdateWishDto) {
-		return `This action updates a #${id} wish`;
+	updateOne(id: number, dto: UpdateWishDto) {
+		return crudUpdate(this.repository, id, dto);
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} wish`;
+	removeOne(id: number) {
+		return crudDelete(this.repository, id);
 	}
 }

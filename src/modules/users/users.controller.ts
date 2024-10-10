@@ -1,4 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Req } from "@nestjs/common";
+import { Like } from "typeorm";
+import { AuthGuard } from "@nestjs/passport";
+import { QueryDto } from "src/core/dto/query.dto";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -12,23 +15,43 @@ export class UsersController {
 		return this.usersService.create(createUserDto);
 	}
 
-	@Get()
-	findAll() {
-		return this.usersService.findAll();
+	@Post("find")
+	findByQuery(@Body() queryDto: QueryDto) {
+		return this.usersService.findMany({
+			where: [{ username: Like(`%${queryDto.query}%`) }, { email: Like(`%${queryDto.query}%`) }],
+		});
 	}
 
-	@Get(":id")
-	findOne(@Param("id") id: string) {
-		return this.usersService.findOne(+id);
+	@UseGuards(AuthGuard("jwt"))
+	@Get("me")
+	me(@Req() request) {
+		return this.usersService.findOne({ where: { id: request.user.id } });
 	}
 
-	@Patch(":id")
-	update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
-		return this.usersService.update(+id, updateUserDto);
+	@Get(":username")
+	findByUsername(@Param("username") username: string) {
+		return this.usersService.findOne({ where: { username } });
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Get("me/wishes")
+	mewishes(@Req() request) {
+		return this.usersService.findWishes(request.user.username);
+	}
+
+	@Get("/:username/wishes")
+	wishes(@Param("username") username: string) {
+		return this.usersService.findWishes(username);
+	}
+
+	@UseGuards(AuthGuard("jwt"))
+	@Patch("me")
+	update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
+		return this.usersService.updateOne(request.user.id, updateUserDto);
 	}
 
 	@Delete(":id")
-	remove(@Param("id") id: string) {
-		return this.usersService.remove(+id);
+	remove(@Param("id", ParseIntPipe) id: number) {
+		return this.usersService.removeOne(id);
 	}
 }

@@ -1,26 +1,35 @@
 import { Injectable } from "@nestjs/common";
 import { CreateOfferDto } from "./dto/create-offer.dto";
 import { UpdateOfferDto } from "./dto/update-offer.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOneOptions, Repository } from "typeorm";
+import { Offer } from "./entities/offer.entity";
+import { crudCreate, crudFindOne, crudUpdate, crudDelete } from "src/core/utils/crud";
 
 @Injectable()
 export class OffersService {
-	create(createOfferDto: CreateOfferDto) {
-		return "This action adds a new offer";
+	constructor(
+		@InjectRepository(Offer)
+		private repository: Repository<Offer>,
+	) {}
+
+	create(dto: CreateOfferDto) {
+		return crudCreate(this.repository, dto);
 	}
 
 	findAll() {
-		return `This action returns all offers`;
+		return this.repository.find();
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} offer`;
+	async findOne(query: FindOneOptions<Offer>) {
+		return crudFindOne(this.repository, query);
 	}
 
-	update(id: number, updateOfferDto: UpdateOfferDto) {
-		return `This action updates a #${id} offer`;
+	updateOne(id: number, dto: UpdateOfferDto) {
+		return crudUpdate(this.repository, id, dto);
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} offer`;
+	removeOne(id: number) {
+		return crudDelete(this.repository, id);
 	}
 }

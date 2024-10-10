@@ -1,26 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWishlistDto } from './dto/create-wishlist.dto';
-import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { Injectable } from "@nestjs/common";
+import { CreateWishlistDto } from "./dto/create-wishlist.dto";
+import { UpdateWishlistDto } from "./dto/update-wishlist.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOneOptions, Repository } from "typeorm";
+import { Wishlist } from "./entities/wishlist.entity";
+import { crudCreate, crudFindOne, crudUpdate, crudDelete } from "src/core/utils/crud";
 
 @Injectable()
 export class WishlistsService {
-  create(createWishlistDto: CreateWishlistDto) {
-    return 'This action adds a new wishlist';
-  }
+	constructor(
+		@InjectRepository(Wishlist)
+		private repository: Repository<Wishlist>,
+	) {}
 
-  findAll() {
-    return `This action returns all wishlists`;
-  }
+	create(dto: CreateWishlistDto) {
+		return crudCreate(this.repository, dto);
+	}
 
-  findOne(id: number) {
-    return `This action returns a #${id} wishlist`;
-  }
+	findAll() {
+		return this.repository.find();
+	}
 
-  update(id: number, updateWishlistDto: UpdateWishlistDto) {
-    return `This action updates a #${id} wishlist`;
-  }
+	async findOne(query: FindOneOptions<Wishlist>) {
+		return crudFindOne(this.repository, query);
+	}
 
-  remove(id: number) {
-    return `This action removes a #${id} wishlist`;
-  }
+	updateOne(id: number, dto: UpdateWishlistDto) {
+		return crudUpdate(this.repository, id, dto);
+	}
+
+	removeOne(id: number) {
+		return crudDelete(this.repository, id);
+	}
 }

@@ -1,26 +1,62 @@
 import { Injectable } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOneOptions, Repository } from "typeorm";
+import { crudCreate, crudDelete, crudFindOne, crudUpdate } from "src/core/utils/crud";
+import { HashService } from "../hash/hash.service";
 
 @Injectable()
 export class UsersService {
-	create(createUserDto: CreateUserDto) {
-		return "This action adds a new user";
+	constructor(
+		@InjectRepository(User)
+		private repository: Repository<User>,
+		private readonly hashService: HashService,
+	) {}
+
+	async create(dto: CreateUserDto) {
+		dto.password = await this.hashService.hash(dto.password);
+		return crudCreate(this.repository, dto);
 	}
 
-	findAll() {
-		return `This action returns all users`;
+	findMany(query: FindOneOptions<User>) {
+		return this.repository.find(query);
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} user`;
+	async findOne(query: FindOneOptions<User>): Promise<User> {
+		return crudFindOne(this.repository, query);
 	}
 
-	update(id: number, updateUserDto: UpdateUserDto) {
-		return `This action updates a #${id} user`;
+	async findWishes(username: string) {
+		return (
+			await this.findOne({
+				where: { username },
+				relations: {
+					wishes: true,
+				},
+			})
+		).wishes;
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} user`;
+	updateOne(id: number, dto: UpdateUserDto) {
+		return crudUpdate(this.repository, id, dto);
+	}
+
+	removeOne(id: number) {
+		return crudDelete(this.repository, id);
+	}
+
+	async validatePassword(username: string, password: string) {
+		try {
+			const user = await this.findOne({
+				where: { username },
+				select: ["id", "password"],
+			});
+
+			if (user && this.hashService.compare(password, user.password)) return user;
+		} catch {}
+
+		return null;
 	}
 }
