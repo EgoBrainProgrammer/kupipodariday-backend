@@ -6,7 +6,7 @@ import { AuthGuard } from "@nestjs/passport";
 
 @Controller("wishes")
 export class WishesController {
-	constructor(private readonly wishesService: WishesService) {}
+	constructor(private readonly wishesService: WishesService) { }
 
 	@UseGuards(AuthGuard("jwt"))
 	@Post()
@@ -14,9 +14,31 @@ export class WishesController {
 		return this.wishesService.create(request, createWishDto);
 	}
 
+	@UseGuards(AuthGuard("jwt"))
+	@Post(":id/copy")
+	copy(@Req() request, @Param("id", ParseIntPipe) id: number) {
+		return this.wishesService.copy(request, id);
+	}
+
 	@Get()
 	findAll() {
-		return this.wishesService.findAll();
+		return this.wishesService.findAll({
+			relations: { owner: true },
+		});
+	}
+
+	@Get("last")
+	findLast() {
+		return this.wishesService.findAll({ relations: { owner: true }, order: { id: "DESC" }, take: 1 });
+	}
+
+	@Get("top")
+	findTop() {
+		return this.wishesService.findAll({
+			relations: { owner: true },
+			order: { id: "DESC" },
+			take: 10,
+		});
 	}
 
 	@Get(":id")

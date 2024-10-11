@@ -9,7 +9,7 @@ import {
 import { CreateWishDto } from "./dto/create-wish.dto";
 import { UpdateWishDto } from "./dto/update-wish.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DataSource, FindOneOptions, Repository } from "typeorm";
+import { DataSource, FindManyOptions, FindOneOptions, Repository } from "typeorm";
 import { Wish } from "./entities/wish.entity";
 import { crudCreate, crudFindOne, crudUpdate, crudDelete } from "src/core/utils/crud";
 import { CreateOfferDto } from "../offers/dto/create-offer.dto";
@@ -23,7 +23,7 @@ export class WishesService {
 		private readonly repository: Repository<Wish>,
 		@Inject(forwardRef(() => OffersService))
 		private readonly offersService: OffersService,
-	) {}
+	) { }
 
 	create(request, dto: CreateWishDto) {
 		return crudCreate(
@@ -36,12 +36,15 @@ export class WishesService {
 		);
 	}
 
-	findAll() {
-		return this.repository.find({
-			relations: {
-				owner: true,
-			},
-		});
+	async copy(request, id: number) {
+		const wish = await this.findOne({ where: { id }, relations: { owner: true } });
+		if (wish.owner.id == request.user.id) throw new ForbiddenException();
+		delete wish.id;
+		return this.create(request, wish);
+	}
+
+	findAll(query: FindManyOptions<Wish>) {
+		return this.repository.find(query);
 	}
 
 	async findOne(query: FindOneOptions<Wish>): Promise<Wish> {
