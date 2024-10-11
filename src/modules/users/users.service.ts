@@ -39,7 +39,8 @@ export class UsersService {
 		).wishes;
 	}
 
-	updateOne(id: number, dto: UpdateUserDto) {
+	async updateOne(id: number, dto: UpdateUserDto) {
+		if (dto.password) dto.password = await this.hashService.hash(dto.password);
 		return crudUpdate(this.repository, id, dto);
 	}
 

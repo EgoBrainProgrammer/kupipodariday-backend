@@ -10,15 +10,18 @@ import { crudCreate, crudFindOne, crudUpdate, crudDelete } from "src/core/utils/
 export class OffersService {
 	constructor(
 		@InjectRepository(Offer)
-		private repository: Repository<Offer>,
-	) {}
+		private readonly repository: Repository<Offer>,
+	) { }
 
 	create(dto: CreateOfferDto) {
-		return crudCreate(this.repository, dto);
+		crudCreate(this.repository, {
+			...dto,
+			item: <any>dto.itemId,
+		});
 	}
 
 	findAll() {
-		return this.repository.find();
+		return this.repository.find({ relations: { user: true, item: true } });
 	}
 
 	async findOne(query: FindOneOptions<Offer>) {

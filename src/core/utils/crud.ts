@@ -2,9 +2,15 @@ import { ConflictException, InternalServerErrorException, NotFoundException } fr
 import { EntityNotFoundError, FindOneOptions, QueryFailedError, Repository } from "typeorm";
 import { DatabaseError } from "pg-protocol";
 
-export async function crudCreate(repository: Repository<any>, dto: any | any[]) {
+export async function crudCreate(repository: Repository<any>, dto: any | any[], relations: object = null) {
 	try {
-		return await repository.save(dto);
+		let result = await repository.save(dto);
+		if (relations)
+			result = await repository.findOne({
+				where: { id: result.id },
+				relations,
+			});
+		return result;
 	} catch (ex) {
 		if (ex instanceof QueryFailedError) {
 			const err = ex.driverError as DatabaseError;

@@ -24,13 +24,15 @@ export class WishesController {
 		return this.wishesService.findOne({ where: { id } });
 	}
 
+	@UseGuards(AuthGuard("jwt"))
 	@Patch(":id")
-	update(@Param("id", ParseIntPipe) id: number, @Body() updateWishDto: UpdateWishDto) {
-		return this.wishesService.updateOne(id, updateWishDto);
+	update(@Req() request, @Param("id", ParseIntPipe) id: number, @Body() updateWishDto: UpdateWishDto) {
+		return this.wishesService.updateOne(request.user.id, id, updateWishDto);
 	}
 
+	@UseGuards(AuthGuard("jwt"))
 	@Delete(":id")
-	remove(@Param("id", ParseIntPipe) id: number) {
-		return this.wishesService.removeOne(id);
+	remove(@Req() request, @Param("id", ParseIntPipe) id: number) {
+		return this.wishesService.removeOne(request.user.id, id);
 	}
 }
