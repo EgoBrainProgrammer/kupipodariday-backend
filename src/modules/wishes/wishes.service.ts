@@ -93,15 +93,19 @@ export class WishesService {
 		await queryRunner.connect();
 		await queryRunner.startTransaction();
 
+		let offer = null;
+
 		try {
 			wish.raised += dto.amount;
 			await queryRunner.manager.save(wish);
-			await this.offersService.create(dto);
+			offer = await this.offersService.create(dto);
 			await queryRunner.commitTransaction();
 		} catch (err) {
 			await queryRunner.rollbackTransaction();
 		} finally {
 			await queryRunner.release();
 		}
+
+		return offer;
 	}
 }

@@ -13,8 +13,8 @@ export class OffersService {
 		private readonly repository: Repository<Offer>,
 	) {}
 
-	create(dto: CreateOfferDto) {
-		crudCreate(this.repository, {
+	async create(dto: CreateOfferDto) {
+		return crudCreate(this.repository, {
 			...dto,
 			item: <any>dto.itemId,
 		});
