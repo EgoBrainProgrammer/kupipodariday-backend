@@ -23,7 +23,7 @@ export class WishesService {
 		private readonly repository: Repository<Wish>,
 		@Inject(forwardRef(() => OffersService))
 		private readonly offersService: OffersService,
-	) { }
+	) {}
 
 	create(request, dto: CreateWishDto) {
 		return crudCreate(
@@ -39,6 +39,8 @@ export class WishesService {
 	async copy(request, id: number) {
 		const wish = await this.findOne({ where: { id }, relations: { owner: true } });
 		if (wish.owner.id == request.user.id) throw new ForbiddenException();
+		wish.copied++;
+		await this.repository.update(wish.id, wish);
 		delete wish.id;
 		return this.create(request, wish);
 	}

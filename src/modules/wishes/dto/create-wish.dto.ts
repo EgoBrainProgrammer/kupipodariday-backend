@@ -1,5 +1,5 @@
 import { IsNumber, IsOptional, IsPositive, IsString, IsUrl, Length } from "class-validator";
-import { Exclude } from 'class-transformer';
+import { Exclude } from "class-transformer";
 
 export class CreateWishDto {
 	@IsString()

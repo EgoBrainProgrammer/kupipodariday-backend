@@ -6,6 +6,7 @@ import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
+@UseGuards(AuthGuard("jwt"))
 @Controller("users")
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
@@ -22,7 +23,6 @@ export class UsersController {
 		});
 	}
 
-	@UseGuards(AuthGuard("jwt"))
 	@Get("me")
 	me(@Req() request) {
 		return this.usersService.findOne({ where: { id: request.user.id } });
@@ -33,7 +33,6 @@ export class UsersController {
 		return this.usersService.findOne({ where: { username } });
 	}
 
-	@UseGuards(AuthGuard("jwt"))
 	@Get("me/wishes")
 	mewishes(@Req() request) {
 		return this.usersService.findWishes(request.user.username);
@@ -44,7 +43,6 @@ export class UsersController {
 		return this.usersService.findWishes(username);
 	}
 
-	@UseGuards(AuthGuard("jwt"))
 	@Patch("me")
 	update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
 		return this.usersService.updateOne(request.user.id, updateUserDto);

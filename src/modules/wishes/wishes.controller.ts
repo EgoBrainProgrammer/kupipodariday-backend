@@ -6,7 +6,7 @@ import { AuthGuard } from "@nestjs/passport";
 
 @Controller("wishes")
 export class WishesController {
-	constructor(private readonly wishesService: WishesService) { }
+	constructor(private readonly wishesService: WishesService) {}
 
 	@UseGuards(AuthGuard("jwt"))
 	@Post()
@@ -20,6 +20,7 @@ export class WishesController {
 		return this.wishesService.copy(request, id);
 	}
 
+	@UseGuards(AuthGuard("jwt"))
 	@Get()
 	findAll() {
 		return this.wishesService.findAll({
@@ -29,7 +30,7 @@ export class WishesController {
 
 	@Get("last")
 	findLast() {
-		return this.wishesService.findAll({ relations: { owner: true }, order: { id: "DESC" }, take: 1 });
+		return this.wishesService.findAll({ relations: { owner: true }, order: { id: "DESC" }, take: 40 });
 	}
 
 	@Get("top")
@@ -41,6 +42,7 @@ export class WishesController {
 		});
 	}
 
+	@UseGuards(AuthGuard("jwt"))
 	@Get(":id")
 	findOne(@Param("id", ParseIntPipe) id: number) {
 		return this.wishesService.findOne({ where: { id } });

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { CreateWishlistDto } from "./dto/create-wishlist.dto";
 import { UpdateWishlistDto } from "./dto/update-wishlist.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -14,7 +14,7 @@ export class WishlistsService {
 		@InjectRepository(Wishlist)
 		private readonly repository: Repository<Wishlist>,
 		private readonly wishesService: WishesService,
-	) { }
+	) {}
 
 	async create(request, dto: CreateWishlistDto) {
 		return crudCreate(this.repository, {
@@ -36,11 +36,15 @@ export class WishlistsService {
 		return crudFindOne(this.repository, query);
 	}
 
-	updateOne(id: number, dto: UpdateWishlistDto) {
+	async updateOne(userId: number, id: number, dto: UpdateWishlistDto) {
+		const wishlist = await this.findOne({ where: { id } });
+		if (wishlist.owner?.id != userId) throw new ForbiddenException();
 		return crudUpdate(this.repository, id, dto);
 	}
 
-	removeOne(id: number) {
+	async removeOne(userId: number, id: number) {
+		const wishlist = await this.findOne({ where: { id } });
+		if (wishlist.owner?.id != userId) throw new ForbiddenException();
 		return crudDelete(this.repository, id);
 	}
 }

@@ -11,7 +11,7 @@ export class OffersService {
 	constructor(
 		@InjectRepository(Offer)
 		private readonly repository: Repository<Offer>,
-	) { }
+	) {}
 
 	create(dto: CreateOfferDto) {
 		crudCreate(this.repository, {

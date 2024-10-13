@@ -4,6 +4,7 @@ import { CreateOfferDto } from "./dto/create-offer.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { WishesService } from "../wishes/wishes.service";
 
+@UseGuards(AuthGuard("jwt"))
 @Controller("offers")
 export class OffersController {
 	constructor(
@@ -11,7 +12,6 @@ export class OffersController {
 		@Inject(forwardRef(() => WishesService)) private readonly wishesService: WishesService,
 	) {}
 
-	@UseGuards(AuthGuard("jwt"))
 	@Post()
 	create(@Req() request, @Body() dto: CreateOfferDto) {
 		return this.wishesService.rais({
