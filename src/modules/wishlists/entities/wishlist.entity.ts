@@ -17,6 +17,7 @@ export class Wishlist extends BaseEntity {
 
 	@Column({
 		length: 1500,
+		nullable: true,
 	})
 	@MaxLength(1500)
 	description: string;
@@ -30,5 +31,5 @@ export class Wishlist extends BaseEntity {
 	items: Wish[];
 
 	@ManyToOne(() => User, user => user.offers)
-	user: User;
+	owner: User;
 }
